@@ -1,0 +1,134 @@
+To generate a JaCoCo aggregator report in a multi-module Maven project, you need to:
+
+Add the jacoco-maven-plugin to the child modules to generate execution data.
+
+Add an aggregator module (typically the parent or a separate module) that uses the report-aggregate goal.
+
+✅ Step-by-Step Setup
+🧩 Project Structure
+pgsql
+Copy
+Edit
+my-project/
+├── pom.xml  <-- Parent pom
+├── module-a/
+│   └── pom.xml
+├── module-b/
+│   └── pom.xml
+└── jacoco-report/
+    └── pom.xml  <-- Aggregator module for JaCoCo
+🧱 1. Add JaCoCo Plugin in Each Child Module
+Each module that contains code should have this in its pom.xml:
+
+xml
+Copy
+Edit
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.jacoco</groupId>
+      <artifactId>jacoco-maven-plugin</artifactId>
+      <version>0.8.11</version>
+      <executions>
+        <execution>
+          <id>prepare-agent</id>
+          <goals>
+            <goal>prepare-agent</goal>
+          </goals>
+        </execution>
+        <execution>
+          <id>report</id>
+          <phase>prepare-package</phase>
+          <goals>
+            <goal>report</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+📦 2. Add Aggregator Module (e.g., jacoco-report/pom.xml)
+This module will generate the combined HTML report:
+
+xml
+Copy
+Edit
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>my-project</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <artifactId>jacoco-report</artifactId>
+  <packaging>pom</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.11</version>
+        <executions>
+          <execution>
+            <id>report-aggregate</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report-aggregate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- Add modules that contain code -->
+    <dependency>
+      <groupId>com.example</groupId>
+      <artifactId>module-a</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.example</groupId>
+      <artifactId>module-b</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+  </dependencies>
+</project>
+🔄 3. Parent POM
+Ensure your parent POM includes all the modules:
+
+xml
+Copy
+Edit
+<modules>
+  <module>module-a</module>
+  <module>module-b</module>
+  <module>jacoco-report</module>
+</modules>
+🚀 Run Commands
+bash
+Copy
+Edit
+mvn clean verify
+Then open:
+
+swift
+Copy
+Edit
+jacoco-report/target/site/jacoco-aggregate/index.html
+🧪 Optional: Combine with Surefire Plugin
+To make sure the execution data is generated:
+
+xml
+Copy
+Edit
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <version>3.1.2</version>
+</plugin>
