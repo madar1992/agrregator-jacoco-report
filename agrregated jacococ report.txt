@@ -15,7 +15,7 @@ my-project/
 │   └── pom.xml
 ├── module-b/
 │   └── pom.xml
-└── jacoco-report/
+└── jacoco-report/  <-- In this service it is named as agreement-aggregate-report and check pom.xml file of this module for configuration.
     └── pom.xml  <-- Aggregator module for JaCoCo
 🧱 1. Add JaCoCo Plugin in Each Child Module
 Each module that contains code should have this in its pom.xml:
